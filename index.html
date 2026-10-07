@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kindness Challenge</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f6ff;
+      margin: 0;
+      padding: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 40px;
+    }
+
+    .box {
+      background: white;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 25px;
+      border-radius: 18px;
+      box-shadow: 0 4px 15px #ccc;
+    }
+
+    select,
+    input,
+    button {
+      font-size: 17px;
+      padding: 12px;
+      margin: 6px;
+      border-radius: 10px;
+    }
+
+    button {
+      background: #4169e1;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #294dcc;
+    }
+
+    .student {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f7f7f7;
+      margin: 8px 0;
+      padding: 15px;
+      border-radius: 12px;
+      font-size: 19px;
+    }
+
+    .first {
+      background: #fff4b8;
+    }
+
+    .second {
+      background: #eeeeee;
+    }
+
+    .third {
+      background: #f5d2b3;
+    }
+
+    #message {
+      font-weight: bold;
+      font-size: 20px;
+      margin-top: 15px;
+    }
+
+    .reward {
+      padding: 12px;
+      margin: 8px;
+      background: #eef2ff;
+      border-radius: 10px;
+    }
+
+    .danger {
+      background: #d64242;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>⭐ Kindness Challenge ⭐</h1>
+  <p>Earn points by doing kind things at school!</p>
+
+  <div class="box">
+
+    <h2>Give Kindness Points</h2>
+
+    <select id="studentSelect"></select>
+
+    <br>
+
+    <button onclick="givePoints(5, 'Helped Someone')">
+      Helped Someone +5
+    </button>
+
+    <button onclick="givePoints(3, 'Used Kind Words')">
+      Kind Words +3
+    </button>
+
+    <button onclick="givePoints(5, 'Included Someone')">
+      Included Someone +5
+    </button>
+
+    <button onclick="givePoints(4, 'Great Teamwork')">
+      Teamwork +4
+    </button>
+
+    <button onclick="givePoints(2, 'Cleaned Up')">
+      Cleaned Up +2
+    </button>
+
+    <div id="message"></div>
+
+  </div>
+
+
+  <div class="box">
+
+    <h2>🏆 Leaderboard</h2>
+
+    <div id="leaderboard"></div>
+
+  </div>
+
+
+  <div class="box">
+
+    <h2>🎁 Rewards</h2>
+
+    <div class="reward">
+      😊 25 Points — Helping Hand Badge
+    </div>
+
+    <div class="reward">
+      🌟 50 Points — Kindness Star
+    </div>
+
+    <div class="reward">
+      👑 100 Points — Kindness Champion
+    </div>
+
+    <div class="reward">
+      🏆 200 Points — Kindness Legend
+    </div>
+
+  </div>
+
+
+  <div class="box">
+
+    <h2>➕ Add Student</h2>
+
+    <input
+      id="newStudent"
+      placeholder="Student name"
+    >
+
+    <button onclick="addStudent()">
+      Add Student
+    </button>
+
+  </div>
+
+
+  <div class="box">
+
+    <button class="danger" onclick="resetGame()">
+      Reset All Points
+    </button>
+
+  </div>
+
+
+<script>
+
+let students = JSON.parse(localStorage.getItem("kindnessStudents"));
+
+if (!students) {
+
+  students = [
+    { name: "Alex", points: 0 },
+    { name: "Emma", points: 0 },
+    { name: "Liam", points: 0 },
+    { name: "Maya", points: 0 },
+    { name: "Noah", points: 0 }
+  ];
+
+}
+
+
+function saveGame() {
+
+  localStorage.setItem(
+    "kindnessStudents",
+    JSON.stringify(students)
+  );
+
+}
+
+
+function updateGame() {
+
+  let select = document.getElementById("studentSelect");
+
+  select.innerHTML = "";
+
+  students.forEach(function(student, index) {
+
+    let option = document.createElement("option");
+
+    option.value = index;
+
+    option.innerText = student.name;
+
+    select.appendChild(option);
+
+  });
+
+
+  let sortedStudents =
+    [...students].sort(function(a, b) {
+
+      return b.points - a.points;
+
+    });
+
+
+  let leaderboard =
+    document.getElementById("leaderboard");
+
+  leaderboard.innerHTML = "";
+
+
+  sortedStudents.forEach(function(student, index) {
+
+    let place = index + 1;
+
+    let medal = "";
+
+    let className = "student";
+
+
+    if (place === 1) {
+
+      medal = "🥇";
+
+      className += " first";
+
+    }
+
+    else if (place === 2) {
+
+      medal = "🥈";
+
+      className += " second";
+
+    }
+
+    else if (place === 3) {
+
+      medal = "🥉";
+
+      className += " third";
+
+    }
+
+
+    let reward = getReward(student.points);
+
+
+    leaderboard.innerHTML += `
+
+      <div class="${className}">
+
+        <span>
+          ${medal} #${place} ${student.name}
+        </span>
+
+        <span>
+          ${student.points} ⭐ ${reward}
+        </span>
+
+      </div>
+
+    `;
+
+  });
+
+
+  saveGame();
+
+}
+
+
+function givePoints(points, reason) {
+
+  let select =
+    document.getElementById("studentSelect");
+
+  let index =
+    Number(select.value);
+
+
+  students[index].points += points;
+
+
+  document.getElementById("message").innerText =
+
+    "⭐ " +
+    students[index].name +
+    " earned " +
+    points +
+    " points for " +
+    reason +
+    "!";
+
+
+  updateGame();
+
+}
+
+
+function getReward(points) {
+
+  if (points >= 200) {
+
+    return "🏆";
+
+  }
+
+  if (points >= 100) {
+
+    return "👑";
+
+  }
+
+  if (points >= 50) {
+
+    return "🌟";
+
+  }
+
+  if (points >= 25) {
+
+    return "😊";
+
+  }
+
+  return "";
+
+}
+
+
+function addStudent() {
+
+  let input =
+    document.getElementById("newStudent");
+
+  let name =
+    input.value.trim();
+
+
+  if (name === "") {
+
+    alert("Enter a student name.");
+
+    return;
+
+  }
+
+
+  students.push({
+
+    name: name,
+
+    points: 0
+
+  });
+
+
+  input.value = "";
+
+
+  updateGame();
+
+}
+
+
+function resetGame() {
+
+  let answer =
+    confirm("Reset everyone's points to 0?");
+
+
+  if (answer) {
+
+    students.forEach(function(student) {
+
+      student.points = 0;
+
+    });
+
+
+    updateGame();
+
+  }
+
+}
+
+
+updateGame();
+
+</script>
+
+</body>
+</html>
