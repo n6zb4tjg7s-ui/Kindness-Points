@@ -422,6 +422,73 @@ function resetGame() {
 updateGame();
 
 </script>
+<script type="module">
 
+import { initializeApp } from
+"https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  onSnapshot
+} from
+"https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+
+ const firebaseConfig = {
+    apiKey: "AIzaSyA5j6VMIzCMqvk_R40SigjJ5lrXvLfYvIk",
+    authDomain: "kindness-points-1f9d5.firebaseapp.com",
+    projectId: "kindness-points-1f9d5",
+    storageBucket: "kindness-points-1f9d5.firebasestorage.app",
+    messagingSenderId: "163420201610",
+    appId: "1:163420201610:web:0ef02def96575a5a4bc373"
+  };
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+onSnapshot(collection(db, "students"), (snapshot) => {
+
+  let onlineStudents = [];
+
+  snapshot.forEach((doc) => {
+    onlineStudents.push(doc.data());
+  });
+
+  onlineStudents.sort((a, b) => b.points - a.points);
+
+
+  const leaderboard =
+    document.getElementById("leaderboard");
+
+  leaderboard.innerHTML = "";
+
+
+  onlineStudents.forEach((student, index) => {
+
+    let medal = "";
+
+    if (index === 0) medal = "🥇";
+    if (index === 1) medal = "🥈";
+    if (index === 2) medal = "🥉";
+
+    leaderboard.innerHTML += `
+      <div class="student">
+        <span>
+          ${medal} #${index + 1} ${student.name}
+        </span>
+
+        <span>
+          ${student.points} ⭐
+        </span>
+      </div>
+    `;
+
+  });
+
+});
+
+</script>
 </body>
 </html>
